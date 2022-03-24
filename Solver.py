@@ -32,8 +32,8 @@ class Solver:
 		self.clauses = [set() for _ in range(2 * n_vars)] # for each literal, a set of clauses where that literal occurs in (number of literals = 2x number of variables)
 		# two unused extra lists are created so that we don't have to switch from 1-based indexing back to 0-based indexing every time
 		self.units = [] # a list of literals found in unit clauses, we use a list as we are interested in the order
-		self.var_states = np.zeros((n_vars, 2), dtype=bool) # states for variables that are fixed to a single polarity (i.e. units), used for checking for duplicates or contradictions
-		# var_states[n, 0] = boolean encoding whether variable n has been fixed, var_states[n, 1] = boolean to which value variable n has been assigned (only relevant if the first value is True)
+		self.var_states = np.zeros((n_vars, 2), dtype=bool) # states for variables that are assigned to a single polarity (i.e. units), used for checking for duplicates or contradictions
+		# var_states[n, 0] = boolean encoding whether variable n has been assigned, var_states[n, 1] = boolean to which value variable n has been assigned (only relevant if the first value is True)
 		
 		# two-pass: first we convert all variables into magnitude-sign, then we construct our own data structures
 		# first pass:
@@ -52,9 +52,9 @@ class Solver:
 		self.units.append(literal)
 		self.var_states[var(literal), ] = (True, sign(literal))
 	
-	def solve(self):
+	def solve(self, start_idx=0):
 		# do unit propagation
-		idx = 0
+		idx = start_idx
 		while idx < len(self.units):
 			literal = self.units[idx]
 			
@@ -83,9 +83,12 @@ class Solver:
 				
 				if len(new_clause) == 1: # unit clause produced -> the variable of the remaining literal has to be assigned to that polarity
 					unit_literal, = new_clause # extract the one element
-					if self.var_states[var(unit_literal), 0]: # check whether it is already fixed
-						assert self.var_states[var(unit_literal), 1] == sign(unit_literal) # if it is fixed to the polarity we just learned about, then everything is fine
-					else: # if the variable is not fixed to anything yet, add the newly learned unit clause
+					if self.var_states[var(unit_literal), 0]: # check whether it is already assigned
+						# if it is assigned to the polarity we just learned about, then everything is fine
+						# otherwise we derived a contradiction
+						if self.var_states[var(unit_literal), 1] != sign(unit_literal):
+							return False
+					else: # if the variable is not assigned to anything yet, add the newly learned unit clause
 						self.add_unit(unit_literal)
 						
 				elif len(new_clause) == 0: # empty clause produced
@@ -111,13 +114,14 @@ class Solver:
 			# create a Solver instance with the additional information about an extra unit clause of the literal
 			sub_solver = Solver(frozenset(), 0) # dummy constructor call to get an instance
 			# copy over the variables necessary for solving manually
-			sub_solver.clauses = self.clauses.copy()
-			sub_solver.units = self.units.copy()
-			sub_solver.var_states = self.var_states.copy()
+			length = np.sum([len(cls) for cls in self.clauses])
+			sub_solver.clauses = [cls.copy() for cls in self.clauses] # here we need to copy 1 layer deep because we have a collection of sets
+			sub_solver.units = self.units.copy() # collection of primitives, shallow copy is fine
+			sub_solver.var_states = self.var_states.copy() # collection of primitives
 			# add the additional unit clause
 			sub_solver.add_unit(literal ^ bit)
 			# check if that instance satisfies the formula
-			if sub_solver.solve():
+			if sub_solver.solve(idx):
 				# if it does, copy over the variable assignment and exit the function
 				self.units = sub_solver.units
 				self.var_states = sub_solver.var_states
@@ -128,7 +132,7 @@ class Solver:
 		unassigned_vars = list(np.flatnonzero(np.invert(self.var_states[:, 0])))
 		assert len(unassigned_vars) > 0 # if there are no unassigned variables left, then this method should not have been called
 		# apply a heuristic: sort the unassigned variables by number of positive occurrences and return one of those minimizing that metric
-		unassigned_vars.sort(key=lambda v:len(self.clauses[v * 2])) # since we convert from var to (positive) literal, we multiply by 2
+		unassigned_vars.sort(key=lambda v: -(len(self.clauses[v * 2]))) # since we convert from var to (positive) literal, we multiply by 2
 		return unassigned_vars[0] * 2 # we know from the assert above that there has to be at least one
 	
 	def get_solution(self):
