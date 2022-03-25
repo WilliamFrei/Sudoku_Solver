@@ -321,10 +321,10 @@ clauses = get_complete_sudoku_clauses(sdk_puzzles[2])
 
 def f():
 	solver = Solver(clauses, 9 ** 3)
-	solver.solve()
+	print(solver.solve())
+	print(solver.get_solution())
 
-import timeit
-print(timeit.timeit("f()", number=100, setup="from __main__ import f"))
+f()
 
 #solver = Solver(clauses, 9 ** 3)
 

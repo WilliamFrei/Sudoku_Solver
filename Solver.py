@@ -5,7 +5,7 @@ It determines whether a Sudoku has at least one solution.
 Given a solution, it also determines whether a Sudoku has more solutions.
 If there is only one solution, outputs the solution (if it exists) in a concise format.
 
-Ideally the solver takes less than 0.01s to do find a solution and check it for uniqueness.
+Ideally the solver takes less than 0.1s to do find a solution and check it for uniqueness.
 """
 
 
@@ -22,13 +22,16 @@ from util import complement as compl
 
 class Solver:
 	
-	def __init__(self, clauses: Iterable, n_vars: int):
+	def __init__(self, clauses: Iterable, n_vars: int, is_main_solver=True):
 		"""
 		Constructor for the solver
 		
 		clauses: a collection of clauses, each clause is a collection of variables which are either in the range [1, n_vars] or in the range [-n_vars, -1]
 		n_vars: the number of variables appearing in the clauses
+		is_main_solver: whether this is the main solver or a sub-solver created in a DPLL-split in a variable
 		"""
+		self.original_clauses = clauses # store the original clauses - we need them later to check for uniqueness of solutions
+		self.n_vars = n_vars # store the n_vars
 		self.clauses = [set() for _ in range(2 * n_vars)] # for each literal, a set of clauses where that literal occurs in (number of literals = 2x number of variables)
 		# two unused extra lists are created so that we don't have to switch from 1-based indexing back to 0-based indexing every time
 		self.units = [] # a list of literals found in unit clauses, we use a list as we are interested in the order
@@ -46,6 +49,9 @@ class Solver:
 				if len(clause) == 1: # if it is an unit clause, add the literal to the units
 					assert sign(literal) # if a negative literal unit clause would end up here, then a mistake when generating the Sudoku puzzle has happened - initial units must be > 0
 					self.add_unit(literal)
+		
+		self.is_main_solver = is_main_solver
+		self.is_solved = False # whether the formula has been solved
 	
 	def add_unit(self, literal):
 		assert not self.var_states[var(literal), 0] # variable being assigned twice - this should not happen
@@ -106,13 +112,14 @@ class Solver:
 		
 		# if we found an assignment to all variables which didn't result in any contradictions (empty clauses, see above), we are done
 		if len(self.units) == 9 ** 3:
-			return True
+			# if this is the main solver, we check if there are more solutions, otherwise we are done
+			return self.check_uniqueness() if self.is_main_solver else True
 		
 		# otherwise, choose a variable that isn't assigned yet and try check whether the formula is satisfiable for either assignment of the variable
 		literal = self.select_literal()
 		for bit in [0, 1]: # the bit selects the polarity of the literal
 			# create a Solver instance with the additional information about an extra unit clause of the literal
-			sub_solver = Solver(frozenset(), 0) # dummy constructor call to get an instance
+			sub_solver = Solver(frozenset(), 0, False) # dummy constructor call to get an instance
 			# copy over the variables necessary for solving manually
 			length = np.sum([len(cls) for cls in self.clauses])
 			sub_solver.clauses = [cls.copy() for cls in self.clauses] # here we need to copy 1 layer deep because we have a collection of sets
@@ -125,7 +132,11 @@ class Solver:
 				# if it does, copy over the variable assignment and exit the function
 				self.units = sub_solver.units
 				self.var_states = sub_solver.var_states
-				return True
+				# if this is the main solver, we check if there are more solutions, otherwise we are done
+				return self.check_uniqueness() if self.is_main_solver else True
+		
+		# DPLL lead to a negative result - the formula is unsolvable
+		return False
 	
 	def select_literal(self):
 		# select all variables that haven't been assigned yet
@@ -135,7 +146,21 @@ class Solver:
 		unassigned_vars.sort(key=lambda v: -(len(self.clauses[v * 2]))) # since we convert from var to (positive) literal, we multiply by 2
 		return unassigned_vars[0] * 2 # we know from the assert above that there has to be at least one
 	
+	def check_uniqueness(self):
+		# make a copy of the original clauses (though we could also just use the collection directly)
+		new_clauses = self.original_clauses.copy()
+		# add a new clause that excludes the solution found
+		# to do this we select all variables that were set to true
+		# make a clause with the polarity of all corresponding literals reversed
+		extra_clause = frozenset(twos_complement((var * 2) ^ 1) for var in np.flatnonzero(self.var_states[:, 1]))
+		new_clauses.add(extra_clause)
+		sub_solver = Solver(new_clauses, self.n_vars, False)
+		original_solution_is_unique = not sub_solver.solve() # if true, then there are additional solutions, which should not be the case.
+		self.is_solved = original_solution_is_unique
+		return original_solution_is_unique
+	
 	def get_solution(self):
+		#assert self.is_solved 
 		assert len(self.units) == 9 ** 3 # number of unit clauses = number of variables if all went well
 		assert all(self.var_states[:, 0]) # redundant with the assert above unless there are bugs - which you can never be sure of so double checking is better
 		return np.flatnonzero(self.var_states[:, 1]) + 1 # return all variables that are set to true, incremented by 1 as we expect them to be 1-based outside of this class
