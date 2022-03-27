@@ -368,6 +368,10 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 from sudoku_examples import sdk_puzzles
 from sudoku_examples import sdk_filled
 
+from plotting import plot_sudoku
+from plotting import plot_progress
+from plotting import plot_differences
+
 solve_and_compare(sdk_puzzles[0])
 solve_and_compare(sdk_puzzles[0], sdk_filled[0])
 

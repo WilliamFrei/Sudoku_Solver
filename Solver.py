@@ -160,9 +160,18 @@ class Solver:
 		return original_solution_is_unique
 	
 	def get_solution(self):
-		#assert self.is_solved 
+		assert self.is_solved 
 		assert len(self.units) == 9 ** 3 # number of unit clauses = number of variables if all went well
 		assert all(self.var_states[:, 0]) # redundant with the assert above unless there are bugs - which you can never be sure of so double checking is better
 		return np.flatnonzero(self.var_states[:, 1]) + 1 # return all variables that are set to true, incremented by 1 as we expect them to be 1-based outside of this class
 	
+	
+	def get_steps(self):
+		"""
+		Alternative function to get the solution in terms of the individual squares filled, along with extra information about the order.
+		"""
+		assert self.is_solved 
+		assert len(self.units) == 9 ** 3 # number of unit clauses = number of variables if all went well
+		assert all(self.var_states[:, 0]) # redundant with the assert above unless there are bugs - which you can never be sure of so double checking is better
+		pass
 	
