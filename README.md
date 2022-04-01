@@ -2,11 +2,13 @@
 
 >**errare humanum est**
 
-to err is human
+## What this program is for
 
 When solving Sudokus, mistakes happen occasionally. Possible reasons are overlooking an already filled in number when checking for what is still missing, switching up rows or columns, or simply faulty solving logic, among other things.
 When this happens, it is usually only after you fill out several more (potentially wrong, as a consequence of the original mistake) squares that you notice a the mistake has transpired.
 At this point, it can be very hard to pinpoint the original mistake and backtrack. This program tries to help with that, by showing you all the squares that are filled in wrong.
+
+To solve the Sudoku, a SAT-Solver which uses DPLL is employed. Typically, it only takes a fraction of a second to solve a valid Sudoku puzzle and check whether the solution found is unique.
 
 ## Example
 
