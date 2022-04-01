@@ -58,7 +58,7 @@ def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None):
 	
 	puzzle: A 9x9 numpy array, the 'givens' of the original Sudoku puzzle.
 	attempted: A 9x9 numpy array, the user's attempt at solving the Sudoku puzzle, possibly containing mistakes.
-	solved: A 9x9 numpy array, the fully solved Sudoku, optional. If this array is not provided, mistakes are not highlighted.
+	solved: Optional, a 9x9 numpy array, the fully solved Sudoku. If this array is not provided, mistakes are not highlighted.
 	"""
 	assert puzzle.shape == attempted.shape == (9, 9)
 	assert 0 <= np.min(puzzle) and np.max(puzzle) <= 9
@@ -77,8 +77,8 @@ def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None):
 			orig_n = puzzle[x,y]
 			assert orig_n == 0 or n == orig_n # if the square was filled out in the puzzle, then it must not have changed
 			
-			# square coloring depending on whether a square was filled out correctly, incorrectly, not at all or was already given
-			# the default color for the square - used in particular for empty squares
+			# square coloring depending on whether a square was a 'given', filled out correctly, incorrectly or not at all
+			# the default color for the square - used for empty squares and for filled out numbers if no solution was provided
 			square_color = 'white'
 			if orig_n > 0:
 				# color the background of the square gray if the number was a 'given'
