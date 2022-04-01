@@ -34,7 +34,7 @@ class Solver:
 		self.n_vars = n_vars # store the n_vars
 		self.clauses = [set() for _ in range(2 * n_vars)] # for each literal, a set of clauses where that literal occurs in (number of literals = 2x number of variables)
 		# two unused extra lists are created so that we don't have to switch from 1-based indexing back to 0-based indexing every time
-		self.units = [] # a list of literals found in unit clauses, we use a list as we are interested in the order
+		self.units = [] # a list of literals found in unit clauses, we use a list as we are interested in the order, also the iteration in which they were found
 		self.var_states = np.zeros((n_vars, 2), dtype=bool) # states for variables that are assigned to a single polarity (i.e. units), used for checking for duplicates or contradictions
 		# var_states[n, 0] = boolean encoding whether variable n has been assigned, var_states[n, 1] = boolean to which value variable n has been assigned (only relevant if the first value is True)
 		
@@ -48,21 +48,28 @@ class Solver:
 				self.clauses[literal].add(clause)
 				if len(clause) == 1: # if it is an unit clause, add the literal to the units
 					assert sign(literal) # if a negative literal unit clause would end up here, then a mistake when generating the Sudoku puzzle has happened - initial units must be > 0
-					self.add_unit(literal)
+					self.add_unit(literal, 0)
 		
 		self.is_main_solver = is_main_solver
 		self.is_solved = False # whether the formula has been solved
 	
-	def add_unit(self, literal):
+	def add_unit(self, literal, iteration):
 		assert not self.var_states[var(literal), 0] # variable being assigned twice - this should not happen
-		self.units.append(literal)
+		self.units.append((literal, iteration))
 		self.var_states[var(literal), ] = (True, sign(literal))
 	
 	def solve(self, start_idx=0):
+		"""
+		Function to apply DPLL to the formula and solve it.
+		
+		Returns true if the Sudoku has exactly one solution, and false otherwise (no solution/several solutions).
+		
+		start_idx: the index of the first literal that has not been propagated yet (should be left at 0 except for recursive calls)
+		"""
 		# do unit propagation
 		idx = start_idx
 		while idx < len(self.units):
-			literal = self.units[idx]
+			literal, iteration = self.units[idx]
 			
 			# go over all clauses where that literal occurs in that polarity
 			# remove them from the formula, as they are satisfied
@@ -95,7 +102,7 @@ class Solver:
 						if self.var_states[var(unit_literal), 1] != sign(unit_literal):
 							return False
 					else: # if the variable is not assigned to anything yet, add the newly learned unit clause
-						self.add_unit(unit_literal)
+						self.add_unit(unit_literal, iteration + 1)
 						
 				elif len(new_clause) == 0: # empty clause produced
 					return False # empty clause is a contradiction -> formula is unsolvable
@@ -109,6 +116,8 @@ class Solver:
 			self.clauses[compl(literal)] = frozenset()
 			
 			idx += 1
+		
+		# TODO add pure literal elimination
 		
 		# if we found an assignment to all variables which didn't result in any contradictions (empty clauses, see above), we are done
 		if len(self.units) == 9 ** 3:
@@ -126,7 +135,7 @@ class Solver:
 			sub_solver.units = self.units.copy() # collection of primitives, shallow copy is fine
 			sub_solver.var_states = self.var_states.copy() # collection of primitives
 			# add the additional unit clause
-			sub_solver.add_unit(literal ^ bit)
+			sub_solver.add_unit(literal ^ bit, iteration + 100) # increment the iteration by 100 to store the additional information that this is a guess
 			# check if that instance satisfies the formula
 			if sub_solver.solve(idx):
 				# if it does, copy over the variable assignment and exit the function
@@ -139,6 +148,10 @@ class Solver:
 		return False
 	
 	def select_literal(self):
+		"""
+		Heuristic function to select a variable among those that haven't assigned yet to perform a DPLL-split on.
+		As there are many
+		"""
 		# select all variables that haven't been assigned yet
 		unassigned_vars = list(np.flatnonzero(np.invert(self.var_states[:, 0])))
 		assert len(unassigned_vars) > 0 # if there are no unassigned variables left, then this method should not have been called
@@ -160,6 +173,9 @@ class Solver:
 		return original_solution_is_unique
 	
 	def get_solution(self):
+		"""
+		Returns the solution variables
+		"""
 		assert self.is_solved 
 		assert len(self.units) == 9 ** 3 # number of unit clauses = number of variables if all went well
 		assert all(self.var_states[:, 0]) # redundant with the assert above unless there are bugs - which you can never be sure of so double checking is better
@@ -168,10 +184,14 @@ class Solver:
 	
 	def get_steps(self):
 		"""
-		Alternative function to get the solution in terms of the individual squares filled, along with extra information about the order.
+		Alternative function to get the solution in terms of the individual squares filled (in the order in which they were filled).
 		"""
 		assert self.is_solved 
 		assert len(self.units) == 9 ** 3 # number of unit clauses = number of variables if all went well
 		assert all(self.var_states[:, 0]) # redundant with the assert above unless there are bugs - which you can never be sure of so double checking is better
-		pass
+		# the information we are interested in is stored in self.units
+		# we convert the literals back to two's complement, as that is the encoding used outside of this class
+		steps = [(iteration, twos_complement(literal)) for literal, iteration in self.units if literal % 2 == 0]
+		# only return the positive steps (i.e. variables set to true)
+		return steps
 	

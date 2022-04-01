@@ -30,7 +30,12 @@ A valid Sudoku puzzle has exactly one such solution assignment. The assignment c
 
 import numpy as np
 from collections.abc import Iterable
+
 from Solver import Solver
+
+from visualisation import draw_sudoku
+#from visualisation import draw_progress
+from visualisation import draw_differences
 
 def get_global_identifier(x: int, y: int, n: int):
 	"""
@@ -312,29 +317,6 @@ def get_complete_sudoku_clauses(puzzle: np.array):
 	return clauses
 
 
-def print_sudoku(sudoku: np.array):
-	"""
-	Prints a (possibly only partially filled) Sudoku.
-	
-	sudoku: a 9x9 array to be printed, filled with the numbers from 0 to 9. Zeroes denote unfilled squares.
-	"""
-	assert sudoku is None or sudoku.shape == (9, 9), f"input array has wrong shape in 'print_sudoku' call, should be (9, 9) but is: {sudoku.shape}"
-	assert sudoku is None or (0 <= np.min(sudoku) and np.max(sudoku) <= 9), f"input array entries out of bounds (>= 9 or <= 0) in 'array_to_clauses' call: {sudoku}"
-	
-	# this code for printing the whole thing is not very nice but it does it's job
-	line = "+-----+-----+-----+"
-	for y in range(9):
-		if y % 3 == 0:
-			print(line)
-		pr_str = ""
-		for x in range(9):
-			val = sudoku[x,y]
-			ch = str(val) if val > 0 else " "
-			pr_str += ("|" if x % 3 == 0 else " ") + ch
-		print(pr_str + "|")
-	print(line)
-
-
 def solve_and_compare(puzzle: np.array, filled: np.array=None):
 	"""
 	Solves the Sudoku puzzle and optionally compares it to a (possibly partially) filled out Sudoku.
@@ -346,7 +328,7 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 	assert filled is None or (0 <= np.min(filled) and np.max(filled) <= 9), f"'filled' array entries out of bounds (>= 9 or <= 0) in 'array_to_clauses' call: {filled}"
 	
 	clauses = get_complete_sudoku_clauses(puzzle)
-	solver = solver = Solver(clauses, 9 ** 3)
+	solver = Solver(clauses, 9 ** 3)
 	solved = solver.solve()
 	assert solved
 	solution_vars = solver.get_solution()
@@ -356,24 +338,33 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 		solution_arr[x,y] = i
 		if puzzle[x,y] > 0:
 			assert puzzle[x,y] == i # assert the solution does not clash with the original puzzle
+	'''
+	# the 'draw_progress' function currently does not work
+	
+	# to use the steps in 'draw_progress', we need them as (i, x, y, n) tuples, so they need to be converted with 'split_global_identifier' first
+	step_tuples = [(iteration, *split_global_identifier(step)) for iteration, step in solver.get_steps()]
+	draw_progress(step_tuples)
+	'''
 	if filled is None:
-		print_sudoku(solution_arr)
+		draw_sudoku(solution_arr)
 	else:
 		squares = np.nonzero(filled)
 		diff_arr = np.zeros((9,9), dtype=int)
 		diff_arr[squares] = filled[squares] * (filled[squares] != solution_arr[squares])
-		print_sudoku(diff_arr)
+		draw_differences(solution_arr, filled)
 
+
+# code below is for testing only
 
 from sudoku_examples import sdk_puzzles
 from sudoku_examples import sdk_filled
 
-from plotting import plot_sudoku
-from plotting import plot_progress
-from plotting import plot_differences
-
-solve_and_compare(sdk_puzzles[0])
 solve_and_compare(sdk_puzzles[0], sdk_filled[0])
+solve_and_compare(sdk_puzzles[0])
+
+
+#plot_sudoku(sdk_puzzles[0])
+
 
 
 
