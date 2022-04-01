@@ -76,21 +76,24 @@ def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None):
 			n = attempted[x, y]
 			orig_n = puzzle[x,y]
 			assert orig_n == 0 or n == orig_n # if the square was filled out in the puzzle, then it must not have changed
-			# zeros are treated as unfilled squares and skipped
-			if n == 0:
-				continue
 			
+			# square coloring depending on whether a square was filled out correctly, incorrectly, not at all or was already given
+			# the default color for the square - used in particular for empty squares
+			square_color = 'white'
 			if orig_n > 0:
 				# color the background of the square gray if the number was a 'given'
-				rect = mpatches.Rectangle((x, y), 1, 1, fill = True, color = 'lightgray', linewidth = 0, zorder=2)
-				ax.add_patch(rect)
-			elif solved is not None:
+				square_color = 'lightgray'
+			elif solved is not None and n != 0:
 				# if solved was provided, color correctly/incorrectly filled squares green and red respectively
-				rect = mpatches.Rectangle((x, y), 1, 1, fill = True, color = 'lightgreen' if  solved[x, y] == n else'tomato', linewidth = 0, zorder=2)
-				ax.add_patch(rect)
+				square_color = 'lightgreen' if  solved[x, y] == n else'tomato'
 			
-			# show the number entered by the user
-			text = plt.text(x + 0.38, y + 0.3, str(n), zorder=4, size=25.0)
+			# color the square
+			ax.add_patch(mpatches.Rectangle((x, y), 1, 1, fill = True, color = square_color, linewidth = 0, zorder=2))
+			
+			# zeros are treated as unfilled squares and skipped
+			if n != 0:
+				# show the number entered by the user
+				text = plt.text(x + 0.38, y + 0.3, str(n), zorder=4, size=25.0)
 	
 	plt.show()
 
@@ -154,8 +157,8 @@ def draw_progress(steps: Iterable):
 		
 		# highlight the Sudoku square so that the user can quickly identify which one was changed
 		# if there were one or more guesses, then the difference in 'iterations' is 100 or more and the square is colored differently
-		rect = mpatches.Rectangle((x, y), 1, 1, fill = True, color = 'lightgreen' if iteration - prev_iteration < 100 else "yellow", linewidth = 0, zorder=2)
-		ax.add_patch(rect)
+		square_color = 'lightgreen' if iteration - prev_iteration < 100 else 'yellow'
+		ax.add_patch(mpatches.Rectangle((x, y), 1, 1, fill = True, color = square_color, linewidth = 0, zorder=2))
 		
 		return text,
 	

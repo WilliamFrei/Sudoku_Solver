@@ -321,7 +321,7 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 		draw_attempt(puzzle, filled, solution_arr)
 
 
-# code below is for testing only
+# code below is for testing
 
 from sudoku_examples import sdk_puzzles
 from sudoku_examples import sdk_filled
