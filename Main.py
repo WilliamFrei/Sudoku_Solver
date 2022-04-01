@@ -334,5 +334,7 @@ draw_sudoku(sdk_puzzles[0])
 
 draw_attempt(sdk_puzzles[0], sdk_filled[0])
 
+draw_attempt(sdk_puzzles[0], sdk_puzzles[0])
+
 
 
