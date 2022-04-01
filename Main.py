@@ -34,8 +34,8 @@ from collections.abc import Iterable
 from Solver import Solver
 
 from visualisation import draw_sudoku
-#from visualisation import draw_progress
-from visualisation import draw_differences
+from visualisation import draw_attempt
+from visualisation import draw_progress
 
 def get_global_identifier(x: int, y: int, n: int):
 	"""
@@ -247,39 +247,6 @@ def print_clauses(clauses: Iterable):
 		print(" ".join([str(lit) for lit in clause]) + " 0")
 
 
-'''
-def parse_lines(lines):
-	"""
-	Parses a (partially) filled out Sudoku and converts the numbers filled in into (unit) clauses.
-	
-	lines: 9 strings with exactly 9 numeric characters. 0s denote unfilled squares.
-	"""
-	
-	if len(lines) > 81:
-		lines = lines.split('\n')
-	
-	assert len(lines) == 9, f"number of lines should be 9 in 'parse_lines' call, is: {len(lines)}; input:\n{lines}"
-
-	filled_squares = np.zeros((9, 9), dtype=int)
-	clauses = set()
-	
-	for y in range(9):
-		line = lines[y]
-		assert len(line) == 9, f"length of line should be 9 in 'parse_lines' call, is: {len(line)}; line:\n{line}"
-		for x in range(9):
-			ch = line[x]
-			assert ord('0') <= ord(ch) <= ord('9'), f"line contains non-numeric character in 'parse_lines* call: {ch}; line: {line}"
-			i = int(ch)
-			if i > 0: # if i==0, no information is given, so no unit clause is created
-				clauses.add(frozenset((get_global_identifier(x, y, i),)))
-				filled_squares[x,y] = i
-	
-	print(repr(filled_squares))
-	
-	return filled_squares, clauses
-'''
-
-
 def array_to_clauses(puzzle: np.array):
 	"""
 	Converts a (partially) filled out Sudoku in array form into (unit) clauses.
@@ -351,7 +318,7 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 		squares = np.nonzero(filled)
 		diff_arr = np.zeros((9,9), dtype=int)
 		diff_arr[squares] = filled[squares] * (filled[squares] != solution_arr[squares])
-		draw_differences(solution_arr, filled)
+		draw_attempt(puzzle, filled, solution_arr)
 
 
 # code below is for testing only
@@ -360,11 +327,12 @@ from sudoku_examples import sdk_puzzles
 from sudoku_examples import sdk_filled
 
 solve_and_compare(sdk_puzzles[0], sdk_filled[0])
-solve_and_compare(sdk_puzzles[0])
+#solve_and_compare(sdk_puzzles[0])
 
 
-#plot_sudoku(sdk_puzzles[0])
+draw_sudoku(sdk_puzzles[0])
 
+draw_attempt(sdk_puzzles[0], sdk_filled[0])
 
 
 

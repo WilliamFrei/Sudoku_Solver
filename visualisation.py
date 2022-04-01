@@ -25,12 +25,6 @@ def draw_grid():
 	
 	return fig
 
-def draw_grid_plus(sudoku: np.array):
-	"""
-	Helper function that draws a Sudoku grid and fills it with the nonzero entries in 'sudoku'.
-	"""
-	assert False, "Not implemented yet"
-
 def draw_sudoku(sudoku: np.array):
 	"""
 	Takes a 9x9 numpy array and visualizes it.
@@ -51,6 +45,52 @@ def draw_sudoku(sudoku: np.array):
 			# 0 = empty
 			if c > 0:
 				plt.text(x + 0.38, y + 0.3, str(c), zorder=4, size=25.0)
+	
+	plt.show()
+
+
+def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None):
+	"""
+	Visualizes the user-filled Sudoku, highlighting mistakes.
+	
+	The input are 3 9x9 numpy arrays filled with the integers from 0 to 9 (or, for the 'solved' array, 1 to 9). Zeros indicate unfilled squares.
+	The 'attempted' array is visualized, the other two arrays are used to color the backgrounds of squares to indicate 'givens' and mistakes.
+	
+	puzzle: A 9x9 numpy array, the 'givens' of the original Sudoku puzzle.
+	attempted: A 9x9 numpy array, the user's attempt at solving the Sudoku puzzle, possibly containing mistakes.
+	solved: A 9x9 numpy array, the fully solved Sudoku, optional. If this array is not provided, mistakes are not highlighted.
+	"""
+	assert puzzle.shape == attempted.shape == (9, 9)
+	assert 0 <= np.min(puzzle) and np.max(puzzle) <= 9
+	assert 0 <= np.min(attempted) and np.max(attempted) <= 9
+	
+	if solved is not None:
+		assert solved.shape == (9, 9)
+		assert 1 <= np.min(solved) and np.max(solved) <= 9
+	
+	fig = draw_grid()
+	ax = fig.gca()
+	
+	for x in range(9):
+		for y in range(9):
+			n = attempted[x, y]
+			orig_n = puzzle[x,y]
+			assert orig_n == 0 or n == orig_n # if the square was filled out in the puzzle, then it must not have changed
+			# zeros are treated as unfilled squares and skipped
+			if n == 0:
+				continue
+			
+			if orig_n > 0:
+				# color the background of the square gray if the number was a 'given'
+				rect = mpatches.Rectangle((x, y), 1, 1, fill = True, color = 'lightgray', linewidth = 0, zorder=2)
+				ax.add_patch(rect)
+			elif solved is not None:
+				# if solved was provided, color correctly/incorrectly filled squares green and red respectively
+				rect = mpatches.Rectangle((x, y), 1, 1, fill = True, color = 'lightgreen' if  solved[x, y] == n else'tomato', linewidth = 0, zorder=2)
+				ax.add_patch(rect)
+			
+			# show the number entered by the user
+			text = plt.text(x + 0.38, y + 0.3, str(n), zorder=4, size=25.0)
 	
 	plt.show()
 
@@ -122,29 +162,6 @@ def draw_progress(steps: Iterable):
 	# the steps before 0 ('range(-3,...)') are frames where nothing changes
 	# the +1 step in the 'range' is used to clear the background from the square filled last
 	anim = FuncAnimation(fig, draw_step, frames=range(-3, len(steps) + 1), interval=200, repeat=False)
-	
-	plt.show()
-
-
-def draw_differences(solved, attempted):
-	"""
-	Visualizes the user-filled Sudoku, highlighting mistakes.
-	"""
-	fig = draw_grid()
-	ax = fig.gca()
-	
-	for x in range(9):
-		for y in range(9):
-			n = attempted[x, y]
-			# zeros are treated as unfilled squares and skipped
-			if n == 0:
-				continue
-			# color the background of the square red if the number is wrong
-			if solved[x, y] != n:
-				rect = mpatches.Rectangle((x, y), 1, 1, fill = True, color = 'tomato', linewidth = 0, zorder=2)
-				ax.add_patch(rect)
-			# show the number entered by the user
-			text = plt.text(x + 0.38, y + 0.3, str(n), zorder=4, size=25.0)
 	
 	plt.show()
 
