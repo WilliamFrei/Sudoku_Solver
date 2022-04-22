@@ -106,7 +106,7 @@ def test_global_identifier():
 				assert identifier not in identifier_map, f"same global identifier generated twice: {identifier_map[identifier]} and ({x}, {y}, {n})"
 				identifier_map[identifier] = (x, y, n)
 				# tests inversiveness
-				assert (x, y, n) == split_global_identifier(get_global_identifier(x, y, n)), f"functions 'get_global_identifier' and 'split_global_identifier' did not work as inverses for input {(x, y, n)}"
+				assert (x, y, n) == split_global_identifier(get_global_identifier(x, y, n)), f"'get_global_identifier' and 'split_global_identifier' did not work as inverses: {(x, y, n)}"
 	
 	# check that each appears at least once
 	for identifier in range(1, 729 + 1):
@@ -262,7 +262,7 @@ def array_to_clauses(puzzle: np.array):
 	
 	for x in range(9):
 		for y in range(9):
-			i = puzzle[x,y]
+			i = puzzle[y, x]
 			if i > 0:
 				clauses.add(frozenset((get_global_identifier(x, y, i),)))
 	
@@ -284,16 +284,11 @@ def get_complete_sudoku_clauses(puzzle: np.array):
 	return clauses
 
 
-def solve_and_compare(puzzle: np.array, filled: np.array=None):
+def solve_puzzle(puzzle: np.array):
 	"""
-	Solves the Sudoku puzzle and optionally compares it to a (possibly partially) filled out Sudoku.
-	If such a filled out Sudoku was passed as an argument, the differences in solutions is shown (empty fields ommitted).
-	If no such filled out Sudoku was passed as an argument, the whole solution to the puzzle is shown.
+	Solves the Sudoku puzzle passed as parameter.
 	"""
-	# only check 'filled' as 'puzzle' is checked in 'get_complete_sudoku_clauses'
-	assert filled is None or filled.shape == (9, 9), f"'filled' array has wrong shape in 'solve_and_compare' call, should be (9, 9) but is: {filled.shape}"
-	assert filled is None or (0 <= np.min(filled) and np.max(filled) <= 9), f"'filled' array entries out of bounds (>= 9 or <= 0) in 'array_to_clauses' call: {filled}"
-	
+	# asserts are in 'get_complete_sudoku_clauses'
 	clauses = get_complete_sudoku_clauses(puzzle)
 	solver = Solver(clauses, 9 ** 3)
 	solved = solver.solve()
@@ -301,40 +296,59 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 	solution_vars = solver.get_solution()
 	solution_arr = np.empty((9,9), dtype=int)
 	for var in solution_vars:
-		x,y,i = split_global_identifier(var)
-		solution_arr[x,y] = i
-		if puzzle[x,y] > 0:
-			assert puzzle[x,y] == i # assert the solution does not clash with the original puzzle
-	'''
-	# the 'draw_progress' function currently does not work
+		x, y, i = split_global_identifier(var)
+		solution_arr[y, x] = i
+		if puzzle[y, x] > 0:
+			assert puzzle[y, x] == i # assert the solution does not clash with the original puzzle
 	
+	return solution_arr
+
+
+def solve_and_compare(puzzle: np.array, filled: np.array=None):
+	"""
+	Solves the Sudoku puzzle and optionally compares it to a (possibly partially) filled out Sudoku.
+	If such a filled out Sudoku was passed as an argument, the differences in solutions is shown (empty fields ommitted).
+	If no such filled out Sudoku was passed as an argument, the whole solution to the puzzle is shown.
+	"""
+	# only check 'filled' as 'puzzle' is checked in a sub-call of 'solve_puzzle'
+	assert filled is None or filled.shape == (9, 9), f"'filled' array has wrong shape in 'solve_and_compare' call, should be (9, 9) but is: {filled.shape}"
+	assert filled is None or (0 <= np.min(filled) and np.max(filled) <= 9), f"'filled' array entries out of bounds (>= 9 or <= 0) in 'array_to_clauses' call: {filled}"
+	
+	solution_arr = solve_puzzle(puzzle)
+			
+	'''
 	# to use the steps in 'draw_progress', we need them as (i, x, y, n) tuples, so they need to be converted with 'split_global_identifier' first
 	step_tuples = [(iteration, *split_global_identifier(step)) for iteration, step in solver.get_steps()]
 	draw_progress(step_tuples)
 	'''
+	
 	if filled is None:
 		draw_sudoku(solution_arr)
 	else:
 		squares = np.nonzero(filled)
-		diff_arr = np.zeros((9,9), dtype=int)
-		diff_arr[squares] = filled[squares] * (filled[squares] != solution_arr[squares])
+		#diff_arr = np.zeros((9,9), dtype=int)
+		#diff_arr[squares] = filled[squares] * (filled[squares] != solution_arr[squares])
 		draw_attempt(puzzle, filled, solution_arr)
 
 
-# code below is for testing
-
-from sudoku_examples import sdk_puzzles
-from sudoku_examples import sdk_filled
-
-solve_and_compare(sdk_puzzles[0], sdk_filled[0])
-#solve_and_compare(sdk_puzzles[0])
-
-
-draw_sudoku(sdk_puzzles[0])
-
-draw_attempt(sdk_puzzles[0], sdk_filled[0])
-
-draw_attempt(sdk_puzzles[0], sdk_puzzles[0])
-
+if __name__ == '__main__':
+	# code below is for testing
+	
+	from sudoku_examples import sdk_puzzles
+	from sudoku_examples import sdk_filled
+	
+	#solve_and_compare(sdk_puzzles[0], sdk_filled[0])
+	#solve_and_compare(sdk_puzzles[1], sdk_filled[1])
+	solve_and_compare(sdk_puzzles[2], sdk_filled[2])
+	
+	#solve_and_compare(sdk_puzzles[0])
+	
+	
+	#draw_sudoku(sdk_puzzles[0])
+	
+	#draw_attempt(sdk_puzzles[0], sdk_filled[0])
+	
+	#draw_attempt(sdk_puzzles[0], sdk_puzzles[0])
+	
 
 

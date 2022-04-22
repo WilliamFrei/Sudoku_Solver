@@ -41,7 +41,7 @@ def draw_sudoku(sudoku: np.array):
 	# show the numbers
 	for x in range(9):
 		for y in range(9):
-			c = sudoku[x,y]
+			c = sudoku[y, x]
 			# 0 = empty
 			if c > 0:
 				plt.text(x + 0.38, y + 0.3, str(c), zorder=4, size=25.0)
@@ -49,7 +49,7 @@ def draw_sudoku(sudoku: np.array):
 	plt.show()
 
 
-def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None):
+def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None, return_fig: bool=False):
 	"""
 	Visualizes the user-filled Sudoku, highlighting mistakes.
 	
@@ -73,8 +73,8 @@ def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None):
 	
 	for x in range(9):
 		for y in range(9):
-			n = attempted[x, y]
-			orig_n = puzzle[x,y]
+			n = attempted[y, x]
+			orig_n = puzzle[y, x]
 			assert orig_n == 0 or n == orig_n # if the square was filled out in the puzzle, then it must not have changed
 			
 			# square coloring depending on whether a square was a 'given', filled out correctly, incorrectly or not at all
@@ -85,17 +85,20 @@ def draw_attempt(puzzle: np.array, attempted: np.array, solved: np.array=None):
 				square_color = 'lightgray'
 			elif solved is not None and n != 0:
 				# if solved was provided, color correctly/incorrectly filled squares green and red respectively
-				square_color = 'lightgreen' if  solved[x, y] == n else'tomato'
+				square_color = 'lightgreen' if  solved[y, x] == n else'tomato'
 			
 			# color the square
-			ax.add_patch(mpatches.Rectangle((x, y), 1, 1, fill = True, color = square_color, linewidth = 0, zorder=2))
+			ax.add_patch(mpatches.Rectangle((x, 8 - y), 1, 1, fill = True, color = square_color, linewidth = 0, zorder=2))
 			
 			# zeros are treated as unfilled squares and skipped
 			if n != 0:
 				# show the number entered by the user
-				text = plt.text(x + 0.38, y + 0.3, str(n), zorder=4, size=25.0)
+				text = plt.text(x + 0.38, 8 - y + 0.3, str(n), zorder=4, size=25.0)
 	
-	plt.show()
+	if return_fig:
+		return fig
+	else:
+		plt.show()
 
 
 def draw_progress(steps: Iterable):
@@ -153,17 +156,17 @@ def draw_progress(steps: Iterable):
 		iteration, x, y, n = steps[idx]
 		assert iteration > 0
 		# write the number in the corresponding Sudoku square
-		text = plt.text(x + 0.38, y + 0.3, str(n), zorder=4, size=25.0)
+		text = plt.text(x + 0.38, 8 - y + 0.3, str(n), zorder=4, size=25.0)
 		
 		# highlight the Sudoku square so that the user can quickly identify which one was changed
 		# if there were one or more guesses, then the difference in 'iterations' is 100 or more and the square is colored differently
 		square_color = 'lightgreen' if iteration - prev_iteration < 100 else 'yellow'
-		ax.add_patch(mpatches.Rectangle((x, y), 1, 1, fill = True, color = square_color, linewidth = 0, zorder=2))
+		ax.add_patch(mpatches.Rectangle((x, 8 - y), 1, 1, fill = True, color = square_color, linewidth = 0, zorder=2))
 		
 		return text,
 	
 	# the steps before 0 ('range(-3,...)') are frames where nothing changes
-	# the +1 step in the 'range' is used to clear the background from the square filled last
+	# the +1 step in the 'range' is used to clear the last background (patch)
 	anim = FuncAnimation(fig, draw_step, frames=range(-3, len(steps) + 1), interval=200, repeat=False)
 	
 	plt.show()

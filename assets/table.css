@@ -1,0 +1,47 @@
+.baseDiv {
+	width: 1068px;
+	text-align: center;
+}
+.splitscreen {
+	display:flex;
+}
+.separator {
+	width:50px;
+}
+.margined {
+	margin-top:20px;
+	margin-bottom:20px;
+}
+.error {
+	width:fit-content;
+	margin:auto;
+	padding: 10px;
+	background-color:#fd7070;
+}
+table {
+	width:434px;
+	height:434px;
+}
+td {
+	padding: 0px;
+	margin: 0px;
+	border:1px;
+}
+input {
+	height:40px;
+	width:40px;
+	padding: 0px;
+	text-align:center;
+}
+td:first-child, td:nth-child(3n + 1) {
+	border-left:4px solid;
+}
+td:nth-child(3n), td:last-child {
+	border-right:4px solid;
+}
+tr:first-child td, tr:nth-child(3n+1) td{
+	border-top:4px solid;
+}
+tr:nth-child(3n) td, tr:last-child td{
+	border-bottom:4px solid;
+}
