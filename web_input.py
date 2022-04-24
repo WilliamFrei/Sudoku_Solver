@@ -13,37 +13,12 @@ import base64
 
 app = Dash(__name__)
 
+ENABLE_TEST = True
 
-test_sudoku = np.zeros((9,9), dtype=int)
-
-test_sudoku[0,0] = 6
-test_sudoku[0,2] = 5
-test_sudoku[0,6] = 3
-test_sudoku[1,1] = 2
-test_sudoku[1,2] = 7
-test_sudoku[1,4] = 1
-test_sudoku[2,4] = 7
-test_sudoku[2,5] = 8
-test_sudoku[2,8] = 9
-test_sudoku[3,3] = 9
-test_sudoku[3,6] = 6
-test_sudoku[3,7] = 4
-test_sudoku[4,0] = 7
-test_sudoku[4,8] = 2
-test_sudoku[5,1] = 9
-test_sudoku[5,2] = 6
-test_sudoku[5,5] = 4
-test_sudoku[6,0] = 5
-test_sudoku[6,3] = 1
-test_sudoku[6,4] = 8
-test_sudoku[7,4] = 4
-test_sudoku[7,6] = 2
-test_sudoku[7,7] = 1
-test_sudoku[8,2] = 4
-test_sudoku[8,6] = 9
-test_sudoku[8,8] = 8
-
-print(test_sudoku)
+if ENABLE_TEST:
+	from sudoku_examples import sdk_puzzles, sdk_filled
+	test_givens = sdk_puzzles[2]
+	test_entered = sdk_filled[2]
 
 givens_table_rows = []
 entered_table_rows = []
@@ -68,8 +43,12 @@ for y in range(9):
 			pattern='[1-9]?'
 		)
 		
-		if test_sudoku[y,x] != 0:
-			givens_input.value = str(test_sudoku[y,x])
+		if ENABLE_TEST:
+			if test_givens[y,x] != 0:
+				assert test_givens[y, x] == test_entered[y, x]
+				givens_input.value = str(test_givens[y, x])
+			if test_entered[y,x] != 0:
+				entered_input.value = str(test_entered[y, x])
 		
 		g_row_elements.append(html.Td(givens_input))
 		e_row_elements.append(html.Td(entered_input))
@@ -78,11 +57,14 @@ for y in range(9):
 			Output(entered_input, component_property='value'),
 			Output(entered_input, component_property='style'),
 			Output(entered_input, component_property='disabled'),
-			Input(givens_input, component_property='value')
+			Input(givens_input, component_property='value'),
+			State(entered_input, component_property='value'),
 		)
-		def update_output_div(input_value):
+		def update_output_div(input_value, entered_value):
 			if input_value is not None and len(input_value) == 1 and '1' <= input_value <= '9':
 				return input_value, {'backgroundColor':'#ccc'}, True
+			elif entered_value is not None and len(entered_value) == 1 and '1' <= entered_value <= '9':
+				return entered_value, {}, False
 			else:
 				return '', {}, False
 	givens_table_rows.append(html.Tr(g_row_elements))
@@ -143,7 +125,7 @@ def update_output(n_clicks, *values):
 	fig = draw_attempt(givens_arr, entered_arr, solution_arr, return_fig=True)
 	
 	out_img = BytesIO()
-	fig.savefig(out_img, format='png')
+	fig.savefig(out_img, format='png', bbox_inches='tight')
 	
 	fig.clf()
 	

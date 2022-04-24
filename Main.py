@@ -334,8 +334,7 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 if __name__ == '__main__':
 	# code below is for testing
 	
-	from sudoku_examples import sdk_puzzles
-	from sudoku_examples import sdk_filled
+	from sudoku_examples import sdk_puzzles, sdk_filled
 	
 	#solve_and_compare(sdk_puzzles[0], sdk_filled[0])
 	#solve_and_compare(sdk_puzzles[1], sdk_filled[1])
