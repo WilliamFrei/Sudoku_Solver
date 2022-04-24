@@ -16,11 +16,9 @@
 	width:fit-content;
 	margin:auto;
 	padding: 10px;
-	background-color:#fd7070;
 }
-table {
+.tableDiv {
 	width:434px;
-	height:434px;
 }
 td {
 	padding: 0px;

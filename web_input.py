@@ -71,16 +71,20 @@ for y in range(9):
 	entered_table_rows.append(html.Tr(e_row_elements))
 
 app.layout = html.Div(children=[
-	html.H1(children='Sudoku Input'),
+	html.H1(children='Sudoku Solver'),
 	html.Div(children=[
 		html.Div(className='separator'),
-		html.Table(html.Tbody(givens_table_rows)),
+		html.Div(children=[
+			html.Div('enter the Sudoku puzzle\'s pre-filled numbers here'),
+			html.Table(html.Tbody(givens_table_rows))], className='tableDiv'),
 		html.Div(className='separator'),
 		html.Div(className='separator'),
-		html.Table(html.Tbody(entered_table_rows)),
+		html.Div(children=[
+			html.Div('enter your (partial or complete) solution of the Sudoku here'),
+			html.Table(html.Tbody(entered_table_rows))], className='tableDiv'),
 		html.Div(className='separator')], className='splitscreen'),
 	
-	html.Button('Submit', id='submit-val', n_clicks=0, className='margined'),
+	html.Button('check solution', id='submit-val', n_clicks=0, className='margined'),
 	html.Div(className='margined', children=[html.Div(id='error_msg_div', className='error')]),
 	html.Img(id='visualisation_output', src ='')
 	
@@ -120,7 +124,7 @@ def update_output(n_clicks, *values):
 	try:
 		solution_arr = solve_puzzle(givens_arr) 
 	except AssertionError:
-		return 'Error: Sudoku puzzle has either more than one or zero solutions', {}, ''
+		return 'Error: Sudoku puzzle has either more than one or zero solutions', {'backgroundColor':'#fd7070'}, ''
 		
 	fig = draw_attempt(givens_arr, entered_arr, solution_arr, return_fig=True)
 	
@@ -133,7 +137,7 @@ def update_output(n_clicks, *values):
 	
 	encoded = base64.b64encode(out_img.read()).decode("ascii").replace("\n", "")
 	
-	return '', {'display': 'none'}, f"data:image/png;base64,{encoded}"
+	return 'correct and incorrect squares are colored green and red respectively', {}, f"data:image/png;base64,{encoded}"
 	
 
 
