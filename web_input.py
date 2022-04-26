@@ -16,8 +16,8 @@ app = Dash(__name__)
 ENABLE_TEST = True
 
 if ENABLE_TEST:
-	from sudoku_examples import sdk_puzzles, sdk_filled
-	test_givens = sdk_puzzles[2]
+	from sudoku_examples import sdk_givens, sdk_filled
+	test_givens = sdk_givens[2]
 	test_entered = sdk_filled[2]
 
 givens_table_rows = []

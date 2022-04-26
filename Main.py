@@ -33,9 +33,7 @@ from collections.abc import Iterable
 
 from Solver import Solver
 
-from visualisation import draw_sudoku
-from visualisation import draw_attempt
-from visualisation import draw_progress
+from visualisation import draw_sudoku, draw_attempt, draw_progress
 
 def get_global_identifier(x: int, y: int, n: int):
 	"""
@@ -169,7 +167,7 @@ def generate_at_least_one(grouped_squares: Iterable):
 		clauses.add(i_clause)
 		
 		# additional clauses that encode that if one square among the 'grouped_squares' contains a number (variable), then no other square among the group may contain the same number
-		# this information is redundant due to the fact that only one variable may contain a square and all 9 numbers must appear in the 9 squares, but it speeds up the SAT-solver
+		# this information is redundant due to the fact that only one variable may contain a square and all 9 numbers must appear in the 9 squares, but it can speed up the SAT-solver
 		for j in range(9):
 			x1, y1 = grouped_squares[j]
 			for k in range(j + 1, 9):
@@ -334,20 +332,20 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 if __name__ == '__main__':
 	# code below is for testing
 	
-	from sudoku_examples import sdk_puzzles, sdk_filled
+	from sudoku_examples import sdk_givens, sdk_filled
 	
-	#solve_and_compare(sdk_puzzles[0], sdk_filled[0])
-	#solve_and_compare(sdk_puzzles[1], sdk_filled[1])
-	solve_and_compare(sdk_puzzles[2], sdk_filled[2])
+	#solve_and_compare(sdk_givens[0], sdk_filled[0])
+	#solve_and_compare(sdk_givens[1], sdk_filled[1])
+	solve_and_compare(sdk_givens[2], sdk_filled[2])
 	
-	#solve_and_compare(sdk_puzzles[0])
+	#solve_and_compare(sdk_givens[0])
 	
 	
-	#draw_sudoku(sdk_puzzles[0])
+	#draw_sudoku(sdk_givens[0])
 	
-	#draw_attempt(sdk_puzzles[0], sdk_filled[0])
+	#draw_attempt(sdk_givens[0], sdk_filled[0])
 	
-	#draw_attempt(sdk_puzzles[0], sdk_puzzles[0])
+	#draw_attempt(sdk_givens[0], sdk_givens[0])
 	
 
 
