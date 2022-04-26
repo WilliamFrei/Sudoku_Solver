@@ -44,7 +44,7 @@ def draw_sudoku(sudoku: np.array):
 			c = sudoku[y, x]
 			# 0 = empty
 			if c > 0:
-				plt.text(x + 0.38, y + 0.3, str(c), zorder=4, size=25.0)
+				plt.text(x + 0.38, (8 - y) + 0.3, str(c), zorder=4, size=25.0)
 	
 	plt.show()
 
