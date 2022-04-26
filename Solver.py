@@ -13,11 +13,7 @@ import numpy as np
 
 from collections.abc import Iterable
 
-from util import magnitude_sign
-from util import twos_complement
-from util import magnitude as var
-from util import is_positive as sign
-from util import complement as compl
+from util import magnitude_sign, twos_complement, magnitude as var, is_positive as sign, complement as compl
 
 
 class Solver:
@@ -117,7 +113,7 @@ class Solver:
 			
 			idx += 1
 		
-		# TODO add pure literal elimination
+		# could add pure literal elimination here, but the algorithm also works without it
 		
 		# if we found an assignment to all variables which didn't result in any contradictions (empty clauses, see above), we are done
 		if len(self.units) == 9 ** 3:
