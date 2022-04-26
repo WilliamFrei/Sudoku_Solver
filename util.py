@@ -1,4 +1,7 @@
 
+"""
+Module containing helper functions used mainly in 'Solver.py'
+"""
 
 def magnitude_sign(lit: int):
 	"""
@@ -21,39 +24,41 @@ def twos_complement(lit: int):
 
 def magnitude(lit: int):
 	"""
-	Convenience function to extract the magnitude from a literal in magnitude-sign representation.
+	Function to extract the magnitude from a literal in magnitude-sign representation.
 	"""
 	return lit // 2
 
 def is_positive(lit: int):
 	"""
-	Convenience function to extract the polarity (sign) from a literal in magnitude-sign representation.
+	Function to extract the polarity (sign) from a literal in magnitude-sign representation.
 	"""
 	return bool(1 - (lit & 1))
 
 def complement(lit: int):
 	"""
-	Convenience function to get the complementary literal from a literal in magnitude-sign representation.
+	Function to get the complementary literal from a literal in magnitude-sign representation.
 	"""
 	return lit ^ 1 # flip the least significant bit which encodes the polarity with a binary XOR
 
-def test_repr_conversion():
-	forward_map = {}
-	# for simplicity's sake, the literals that would appear in sudoku are tested
-	for l in range(1, 9 ** 3  + 1):
-		assert  l == twos_complement(magnitude_sign( l))
-		assert -l == twos_complement(magnitude_sign(-l))
-		assert magnitude_sign( l) not in forward_map, f"{ l}, {magnitude_sign( l)}, {forward_map[magnitude_sign( l)]}"
-		forward_map[magnitude_sign( l)] = l
-		assert magnitude_sign(-l) not in forward_map, f"{-l}, {magnitude_sign(-l)}, {forward_map[magnitude_sign(-l)]}"
-		forward_map[magnitude_sign(-l)] = -l
+
+if __name__ == '__main__':
+	# if this module is called directly, test the 'magnitude_sign' and 'twos_complement' function for the range of inputs that can occur in a Sudoku
+	def test_repr_conversion():
+		forward_map = {}
+		# for simplicity's sake, the literals that would appear in sudoku are tested
+		for l in range(1, 9 ** 3  + 1):
+			assert  l == twos_complement(magnitude_sign( l))
+			assert -l == twos_complement(magnitude_sign(-l))
+			assert magnitude_sign( l) not in forward_map, f"{ l}, {magnitude_sign( l)}, {forward_map[magnitude_sign( l)]}"
+			forward_map[magnitude_sign( l)] = l
+			assert magnitude_sign(-l) not in forward_map, f"{-l}, {magnitude_sign(-l)}, {forward_map[magnitude_sign(-l)]}"
+			forward_map[magnitude_sign(-l)] = -l
+		
+		backward_map = {}
+		for l in range(2 * 9 ** 3):
+			assert l == magnitude_sign(twos_complement(l))
+			assert twos_complement(l) not in backward_map, f"{l}, {twos_complement(l)}, {forward_map[twos_complement(l)]}"
+			backward_map[twos_complement(l)] = l
 	
-	backward_map = {}
-	for l in range(2 * 9 ** 3):
-		assert l == magnitude_sign(twos_complement(l))
-		assert twos_complement(l) not in backward_map, f"{l}, {twos_complement(l)}, {forward_map[twos_complement(l)]}"
-		backward_map[twos_complement(l)] = l
-
-
-# test_repr_conversion()
+	test_repr_conversion()
 
