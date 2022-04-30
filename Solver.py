@@ -43,11 +43,11 @@ class Solver:
 			for literal in clause:
 				self.clauses[literal].add(clause)
 				if len(clause) == 1: # if it is an unit clause, add the literal to the units
-					assert sign(literal) # if a negative literal unit clause would end up here, then a mistake when generating the Sudoku puzzle has happened - initial units must be > 0
+					assert sign(literal) # if a negative literal unit clause would end up here, then a mistake when generating the Sudoku puzzle occured - initial units must be positive
 					self.add_unit(literal, 0)
 		
 		self.is_main_solver = is_main_solver
-		self.is_solved = False # whether the formula has been solved
+		self.is_solved = False # whether the formula has been solved, with exactly one solution
 	
 	def add_unit(self, literal, iteration):
 		assert not self.var_states[var(literal), 0] # variable being assigned twice - this should not happen
@@ -180,7 +180,7 @@ class Solver:
 	
 	def get_steps(self):
 		"""
-		Alternative function to get the solution in terms of the individual squares filled (in the order in which they were filled).
+		Alternative function to get the solution in terms of the individual squares filled, in the order in which they were filled.
 		"""
 		assert self.is_solved 
 		assert len(self.units) == 9 ** 3 # number of unit clauses = number of variables if all went well

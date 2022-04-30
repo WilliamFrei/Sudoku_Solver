@@ -1,7 +1,8 @@
 """
 
-A Python3 program that helps you find mistakes if you run into any while solving a Sudoku puzzle.
+A Python3 program that, if you run into any mistakes while solving a Sudoku puzzle, identifies those mistakes for you.
 
+This module mainly contains glue code tying together the other modules.
 
 Mistakes happen from time to time when solving Sudoku. Possible reasons are miscounting, switching up rows with other rows (or the same with columns), or simply faulty solving logic, among other things.
 When that happens, it is usually only after you fill out several more (potentially wrong, as a consequence of the original mistake) squares that you notice a the mistake has transpired.
@@ -33,7 +34,7 @@ from collections.abc import Iterable
 
 from Solver import Solver
 
-from visualisation import draw_sudoku, draw_attempt, draw_progress
+from visualisation import draw_sudoku, draw_attempt
 
 def get_global_identifier(x: int, y: int, n: int):
 	"""
@@ -330,7 +331,7 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 
 
 if __name__ == '__main__':
-	# code below is for testing
+	# code below is for testing functionality
 	
 	from sudoku_examples import sdk_givens, sdk_filled
 	
