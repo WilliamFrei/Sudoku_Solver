@@ -26,5 +26,5 @@ A dash-based web application can be found at [web_input.py](web_input.py). It ca
 
 ### Other Modules
 
-The other `.py` files contain even more code, with lots of comments that explain what they do.
+The other `.py` files contain even more code, with lots of comments that explain what they do. `Main.py` contains mostly glue code tying together the other modules. The SAT-Solver is found in `Solver.py` (it contains some Sudoku-domain-specific knowledge such as the maximum number of variables, or code that ensures that there is only be a single solution, but could be made into a general-purpose SAT-Solver with only minor changes), and small helper functions used for the Solver are contained in `util.py`. `sudoku_examples.py` is made up of only some example puzzles and solving attempts. Lastly, as its name implies, `visualisation.py` is filled with a few functions to visualise Sudokus.
 
