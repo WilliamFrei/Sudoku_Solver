@@ -44,14 +44,14 @@ class Solver:
 				self.clauses[literal].add(clause)
 				if len(clause) == 1: # if it is an unit clause, add the literal to the units
 					assert sign(literal) # if a negative literal unit clause would end up here, then a mistake when generating the Sudoku puzzle occured - initial units must be positive
-					self.add_unit(literal, 0)
+					self.add_unit(literal, 0, 0)
 		
 		self.is_main_solver = is_main_solver
 		self.is_solved = False # whether the formula has been solved, with exactly one solution
 	
-	def add_unit(self, literal, iteration):
+	def add_unit(self, literal, iteration, guess):
 		assert not self.var_states[var(literal), 0] # variable being assigned twice - this should not happen
-		self.units.append((literal, iteration))
+		self.units.append((literal, iteration, guess))
 		self.var_states[var(literal), ] = (True, sign(literal))
 	
 	def solve(self, start_idx=0):
@@ -65,7 +65,7 @@ class Solver:
 		# do unit propagation
 		idx = start_idx
 		while idx < len(self.units):
-			literal, iteration = self.units[idx]
+			literal, iteration, guess = self.units[idx]
 			
 			# go over all clauses where that literal occurs in that polarity
 			# remove them from the formula, as they are satisfied
@@ -98,7 +98,7 @@ class Solver:
 						if self.var_states[var(unit_literal), 1] != sign(unit_literal):
 							return False
 					else: # if the variable is not assigned to anything yet, add the newly learned unit clause
-						self.add_unit(unit_literal, iteration + 1)
+						self.add_unit(unit_literal, iteration + 1, guess)
 						
 				elif len(new_clause) == 0: # empty clause produced
 					return False # empty clause is a contradiction -> formula is unsolvable
@@ -131,7 +131,7 @@ class Solver:
 			sub_solver.units = self.units.copy() # collection of primitives, shallow copy is fine
 			sub_solver.var_states = self.var_states.copy() # collection of primitives
 			# add the additional unit clause
-			sub_solver.add_unit(literal ^ bit, iteration + 100) # increment the iteration by 100 to store the additional information that this is a guess
+			sub_solver.add_unit(literal ^ bit, iteration + 1, guess + 1) # increment the iteration by 100 to store the additional information that this is a guess
 			# check if that instance satisfies the formula
 			if sub_solver.solve(idx):
 				# if it does, copy over the variable assignment and exit the function
@@ -187,7 +187,7 @@ class Solver:
 		assert all(self.var_states[:, 0]) # redundant with the assert above unless there are bugs - which you can never be sure of so double checking is better
 		# the information we are interested in is stored in self.units
 		# we convert the literals back to two's complement, as that is the encoding used outside of this class
-		steps = [(iteration, twos_complement(literal)) for literal, iteration in self.units if literal % 2 == 0]
+		steps = [(iteration, guess, twos_complement(literal)) for literal, iteration, guess in self.units if literal % 2 == 0]
 		# only return the positive steps (i.e. variables set to true)
 		return steps
 	
