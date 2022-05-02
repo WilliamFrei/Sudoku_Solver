@@ -8,24 +8,23 @@ When solving Sudokus, mistakes happen occasionally. Possible reasons are overloo
 When this happens, it is usually only after you fill out several more (potentially wrong, as a consequence of the original mistake) squares that you notice a the mistake has transpired.
 At this point, it can be very hard to pinpoint the original mistake and backtrack. This program tries to help with that, by showing you all the squares that are filled in wrong.
 
-To solve the Sudoku, a SAT-Solver which uses DPLL is employed. Typically, it only takes a fraction of a second to solve a valid Sudoku puzzle and check whether the solution found is unique.
+To solve the Sudoku puzzle, it is converted into a CNF-formula and then a SAT-Solver which uses DPLL is employed. Typically, it only takes a fraction of a second to solve a valid Sudoku puzzle and check whether the solution found is unique.
 
-## Example
+## Contents
 
-![Sudoku-Puzzle](example_images/0_sudoku_given.png?raw=true)
+### Use-Case Example
 
-You try to solve the Sudoku puzzle above.
+[Example.md](Example.md) shows an example use-case without any code.
 
-![Sudoku-Attempt](example_images/1_sudoku_attempted.png?raw=true)
+### Web-App
 
-At some point your solving attempt reaches the stage of the second image. Here, you notice that in the lower left 3x3-subgrid, there must be a 3, a 6 and a 9 in the middle column, but also that neither of the three numbers can be in the center of the subgrid - thus there must be a mistake, and at least one of the 3s, 6s or 9s you filled in must be wrong.
+A dash-based web application can be found at [web_input.py](web_input.py). It can be used to enter a Sudoku puzzle alongside with the user's filled-in numbers, and will then show which of the numbers were filled in correctly/incorrectly. 
 
-Unfortunately, it is extremely difficult for a human to backtrack when the mistake happened, and how many of the other squares you filled in are wrong. Rather than doing that, it's probably simpler to just redo the puzzle from the beginning and hope you don't make another mistake.
+### Jupyter-Notebook
 
-However, what may be (almost) impossible for a human, can be trivial to a computer:
-Provided with the 'givens' (the original puzzle) and the numbers you filled in, 
-this program solves the Sudoku from the 'givens', and shows you which of the numbers you filled in correctly or incorrectly:
+[Code-Demo.ipynb](Code-Demo.ipynb) demonstrates some of the functions that are found in the modules, e.g. how Sudokus can be entered as numpy arrays, how they can be solved, and how the solutions can be visualised. As with the web application, running it also requires installing the python packages found in `requirements.txt`.
 
-![Sudoku-Mistakes](example_images/2_sudoku_mistakes.png?raw=true)
+### Other Modules
 
-Now you can just erase the wrong numbers and continue your solving attempt from there!
+The other `.py` files contain even more code, with lots of comments that explain what they do.
+
