@@ -18,7 +18,7 @@ To solve the Sudoku puzzle, it is converted into a CNF-formula and then a SAT-So
 
 ### Web-App
 
-A dash-based web application can be found at [web_input.py](web_input.py). It can be used to enter a Sudoku puzzle alongside with the user's filled-in numbers, and will then show which of the numbers were filled in correctly/incorrectly. 
+A dash-based web application can be found at [web_input.py](web_input.py). It can be used to enter a Sudoku puzzle alongside with the user's filled-in numbers, and will then show which of the numbers were filled in correctly/incorrectly. It requires installing the python packages found in `requirements.txt`.
 
 ### Jupyter-Notebook
 
