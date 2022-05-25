@@ -14,7 +14,7 @@ import base64
 app = Dash(__name__)
 
 # fill out the Sudoku grids with a pre-defined Sudoku from 'sudoku_examples' to show the functionality without having to enter a Sudoku manually
-ENABLE_TEST = True
+ENABLE_TEST = False
 
 # if 'ENABLE_TEST' then load the test-Sudoku here
 if ENABLE_TEST:
