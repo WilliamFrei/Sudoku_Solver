@@ -113,7 +113,20 @@ class Solver:
 			
 			idx += 1
 		
-		# could add pure literal elimination here, but the algorithm also works without it
+		# pure literal elimination (checking each literal):
+		for lit in range(0, self.n_vars, 2):
+			# skip variables that already have an assignment
+			if self.var_states[var(lit), 0]:
+				continue
+			complement = compl(lit)
+			# check if the positive literal does not occur in clauses
+			if len(self.clauses[lit]) == 0:
+				# if so, assign the variable to the opposite (negative) polarity
+				self.add_unit(complement, iteration, guess)
+			# check if the negated literal does not occur in clauses
+			elif len(self.clauses[complement]) == 0:
+				# if so, assign the variable to the opposite (positive) polarity
+				self.add_unit(lit, iteration, guess)
 		
 		# if we found an assignment to all variables which didn't result in any contradictions (empty clauses, see above), we are done
 		if len(self.units) == 9 ** 3:
