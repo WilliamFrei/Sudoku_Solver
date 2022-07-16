@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 A simple SAT-Solver, capable of solving Sudokus.
 
@@ -13,7 +15,7 @@ import numpy as np
 
 from collections.abc import Iterable
 
-from util import magnitude_sign, twos_complement, magnitude as var, is_positive as sign, complement as compl
+from modules.util import magnitude_sign, twos_complement, magnitude as var, is_positive as sign, complement as compl
 
 
 class Solver:

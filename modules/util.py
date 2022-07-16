@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 """
 Module containing helper functions used mainly in 'Solver.py'

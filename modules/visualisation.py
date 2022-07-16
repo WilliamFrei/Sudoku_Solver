@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Functions to visualize Sudokus and/or solving progress
 """

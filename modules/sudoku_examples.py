@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import numpy as np
 
 # example original Sudoku puzzles without any numbers filled in by the user (zeroes are empty squares)

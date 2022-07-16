@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 from dash import Dash, html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -5,20 +6,30 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 
-from Main import solve_puzzle
-from visualisation import draw_attempt
-
-from io import BytesIO
+import os
+import json
 import base64
+from io import BytesIO
+
+from Main import solve_puzzle
+from modules.visualisation import draw_attempt
+from modules.sudoku_examples import sdk_givens, sdk_filled
+
+# read some environment variables from a json file
+with open(os.path.join(os.path.dirname(__file__), ".env.json"), "r") as jsonfile:
+	json_config = json.load(jsonfile)
+	
+	APP_HOST = json_config["HOST"]
+	APP_PORT = int(json_config["PORT"])
+	APP_DEBUG = bool(json_config["DEBUG"])
+	DEV_TOOLS_PROPS_CHECK = bool(json_config["DEV_TOOLS_PROPS_CHECK"])
+	TEST_SUDOKU = bool(json_config["TEST_SUDOKU"]) # fill out the Sudoku grids with a pre-defined Sudoku from 'sudoku_examples' to show the functionality without having to enter a Sudoku manually
 
 app = Dash(__name__)
 
-# fill out the Sudoku grids with a pre-defined Sudoku from 'sudoku_examples' to show the functionality without having to enter a Sudoku manually
-ENABLE_TEST = False
 
-# if 'ENABLE_TEST' then load the test-Sudoku here
-if ENABLE_TEST:
-	from sudoku_examples import sdk_givens, sdk_filled
+# if 'TEST_SUDOKU' then load the test-Sudoku here
+if TEST_SUDOKU:
 	test_givens = sdk_givens[2]
 	test_entered = sdk_filled[2]
 
@@ -47,8 +58,8 @@ for y in range(9):
 			pattern='[1-9]?'
 		)
 		
-		# if 'ENABLE_TEST' then fill the input elements with the values from the loaded Sudoku
-		if ENABLE_TEST:
+		# if 'TEST_SUDOKU' then fill the input elements with the values from the loaded Sudoku
+		if TEST_SUDOKU:
 			if test_givens[y,x] != 0:
 				assert test_givens[y, x] == test_entered[y, x]
 				givens_input.value = str(test_givens[y, x])
@@ -84,7 +95,7 @@ for y in range(9):
 			elif len(givens_value) == 0 and entered_disabled:
 				# then empty the 'entered' input field to and enable it
 				return '', {}, False
-			# the last case only happens at the beginning if 'ENABLE_TEST'==True, because 'update_output_div' is once called for each input after initialization
+			# the last case only happens at the beginning if 'TEST_SUDOKU' is True, because 'update_output_div' is once called for each input after initialization
 			# when this happens, the 'givens_value' is blank and also the 'entered' input is enabled
 			elif len(givens_value) == 0 and not entered_disabled:
 				# in this case the 'entered_value' should be left unchanged
@@ -177,5 +188,6 @@ def update_output(n_clicks, *values):
 
 
 if __name__ == '__main__':
-	app.run_server(debug=True)
+	app.run_server(host=APP_HOST, port=APP_PORT, debug=APP_DEBUG, dev_tools_props_check=DEV_TOOLS_PROPS_CHECK)
+
 
