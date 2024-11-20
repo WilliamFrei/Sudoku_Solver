@@ -16,6 +16,30 @@ To solve the Sudoku puzzle, it is converted into a CNF-formula and then a SAT-So
 
 [Example.md](Example.md) shows an example use-case without any code.
 
+### Installation
+
+To run the code in this repository, it is necessary to have python3 installed. Then the following steps should be executed:
+
+* Create a virtual python environment:
+
+``python3 -m venv venv``
+
+* Activate the virtual environment:
+
+``. venv/bin/activate``
+
+* Install the required python modules listed in `requirements.txt` in the virtual enronment:
+
+``pip install -r requirements.txt``
+
+* Run either the main file or the web app:
+
+``python main.py``
+
+``python web_input.py``
+
+* For more information on either, see below
+
 ### Web-App
 
 A dash-based web application can be found at [web_input.py](web_input.py). It can be used to enter a Sudoku puzzle alongside with the user's filled-in numbers, and will then show which of the numbers were filled in correctly/incorrectly. It can be run by building the Dockerfile and running the image, then accessing 0.0.0.0:8085 via a web brower (don't forget to forward the port by adding `-p 8085:8085` when running the image).
@@ -26,5 +50,5 @@ A dash-based web application can be found at [web_input.py](web_input.py). It ca
 
 ### Other Modules
 
-The other `.py` files contain even more code, with lots of comments that explain what they do. `Main.py` contains mostly glue code tying together the other modules. The SAT-Solver is found in `Solver.py` (it contains some Sudoku-domain-specific knowledge such as the maximum number of variables, or code that ensures that there is only be a single solution, but could be made into a general-purpose SAT-Solver with only minor changes), and small helper functions used for the Solver are contained in `util.py`. `sudoku_examples.py` is made up of only some example puzzles and solving attempts. Lastly, as its name implies, `visualisation.py` is filled with a few functions to visualise Sudokus.
+The other `.py` files in the `modules` folder contain even more code, with explanatory comments. `main.py` contains glue code tying together the other modules. The SAT-Solver is found in `solver.py`  - it uses some Sudoku-domain-specific knowledge such as the maximum number of variables, and code ensuring there is exactly one solution, but could be made into a general-purpose SAT-Solver with minor changes. The solver uses some  small helper functions which are found in `util.py`. `sudoku_examples.py` is made up of some example puzzles and solving attempts. Lastly, as its name implies, `visualisation.py` is filled with a few functions to visualise Sudokus.
 

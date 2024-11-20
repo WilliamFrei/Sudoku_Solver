@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from dash import Dash, html, dcc, Input, Output, State
-from dash.exceptions import PreventUpdate
 import plotly.express as px
 import pandas as pd
 import numpy as np
@@ -11,7 +10,7 @@ import json
 import base64
 from io import BytesIO
 
-from Main import solve_puzzle
+from main import solve_puzzle
 from modules.visualisation import draw_attempt
 from modules.sudoku_examples import sdk_givens, sdk_filled
 

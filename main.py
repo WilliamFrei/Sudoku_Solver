@@ -32,7 +32,7 @@ A valid Sudoku puzzle has exactly one such solution assignment. The assignment c
 
 import numpy as np
 
-from modules.Solver import Solver
+from modules.solver import Solver
 from modules.generate_sudoku_cnf import get_complete_sudoku_clauses, split_global_identifier
 from modules.visualisation import draw_sudoku, draw_attempt
 
@@ -77,9 +77,9 @@ def solve_and_compare(puzzle: np.array, filled: np.array=None):
 	if filled is None:
 		draw_sudoku(solution_arr)
 	else:
-		squares = np.nonzero(filled)
-		#diff_arr = np.zeros((9,9), dtype=int)
-		#diff_arr[squares] = filled[squares] * (filled[squares] != solution_arr[squares])
+		# squares = np.nonzero(filled)
+		# diff_arr = np.zeros((9,9), dtype=int)
+		# diff_arr[squares] = filled[squares] * (filled[squares] != solution_arr[squares])
 		draw_attempt(puzzle, filled, solution_arr)
 
 
@@ -92,14 +92,14 @@ if __name__ == '__main__':
 	solve_and_compare(sdk_givens[1], sdk_filled[1])
 	solve_and_compare(sdk_givens[2], sdk_filled[2])
 	
-	#solve_and_compare(sdk_givens[0])
+	# solve_and_compare(sdk_givens[0])
 	
 	
-	#draw_sudoku(sdk_givens[0])
+	# draw_sudoku(sdk_givens[0])
 	
-	#draw_attempt(sdk_givens[0], sdk_filled[0])
+	# draw_attempt(sdk_givens[0], sdk_filled[0])
 	
-	#draw_attempt(sdk_givens[0], sdk_givens[0])
+	# draw_attempt(sdk_givens[0], sdk_givens[0])
 	
 
 
